@@ -1,4 +1,4 @@
-/* Reset de estilos */
+
 body,
 h1,
 h2,
@@ -33,8 +33,8 @@ body {
     display: flex;
     align-items: center;
     padding: 0 0.5rem;
-    border-bottom: 1px solid #000000; /* Un borde delgado de 1 píxel con color gris claro (#ddd) */
-    padding: 0.5rem; /* Añadir algún relleno para separar el contenido del borde */
+    border-bottom: 1px solid #000000; 
+    padding: 0.5rem; 
     transition: color 0.3s ease-in-out;
 }
 
@@ -186,8 +186,8 @@ input[type="submit"] {
     border-right: 1px solid rgb(212, 210, 210);
     background-color: #fff;
     padding: 10px;
-    height: 100vh; /* Ajusta la altura al 100% de la vista del navegador */
-    width: 120px; /* Ancho del menú izquierdo */
+    height: 100vh; 
+    width: 120px; 
     box-sizing: border-box;
 }
 
@@ -196,12 +196,12 @@ input[type="submit"] {
     margin: 0;
     padding: 0;
     display: flex;
-    flex-direction: column; /* Muestra los elementos de la lista en una columna */
+    flex-direction: column; 
 }
 
 
 .explore li {
-    margin-bottom: 30px; /* Espaciado entre elementos de la lista */
+    margin-bottom: 30px; 
 }
 
 .explore a {
@@ -211,7 +211,69 @@ input[type="submit"] {
     font-size: 25px;
 }
 
-.explore main {
-    flex: 1; /* Aprovecha el espacio restante en el contenedor principal */
+/*
+.users {
+    border-left: 1px solid rgb(212, 210, 210);
+    border-right: 1px solid rgb(212, 210, 210);
+    background-color: #fff;
+    padding: 10px;
+    height: 100vh; 
+    width: 120px; 
+    box-sizing: border-box;
+}
+
+.users ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column; 
+}
+
+
+.users li {
+    margin-bottom: 30px; 
+}
+
+.users a {
+    text-decoration: none;
+    color: #000000;
+    font-weight: bold;
+    font-size: 25px;
+}
+
+.users main {
+    flex: 1; 
     padding: 20px;
+} */
+
+.container_manage {
+    display: flex;
+}
+
+.explore {
+    flex: 1; /* El contenido izquierdo toma el espacio disponible */
+    background-color: #cce5ff; /* Color de fondo solo para visualización */
+    padding: 10px;
+}
+  
+.users {
+background-color: #e5ffe5; /* Color de fondo solo para visualización */
+padding: 10px;
+}
+
+.users {
+    color: #bb0000;
+}
+
+.users h1 {
+    color: #bb0000;
+}
+
+.users a{
+    color: #bb0000;
+}
+
+.data {
+    color: #bb0000;
 }

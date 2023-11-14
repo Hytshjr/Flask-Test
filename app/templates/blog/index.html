@@ -11,13 +11,13 @@
       <header>
         <div>
           <h1>{{ post[ 'title' ] }}</h1>
-          <div class="about">
+          <div class="post">
             by {{ post[ 'username' ] }} on 
             {{ post[ 'created'].strftime('%Y-%m-%d') }}
           </div>
         </div>
         {% if session['user_id'] == post['author_id'] or session['user_rol'] == 'admin' %}
-          <a href="{{ url_for('blog.update', id=post['id'] )}}">Edit</a>
+          <a class="edit" href="{{ url_for('blog.update', id=post['id'] )}}">Edit</a>
         {% endif %}
       </header>
       <p class="body">{{ post['body'] }}</p>

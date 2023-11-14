@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, g, request, session
 from flask import redirect, flash, url_for
+from .db import get_db
 import functools
 
 bp = Blueprint('manage', __name__, url_prefix='/manage')
@@ -15,5 +16,12 @@ def admin_user(view):
 @bp.route('/menu')
 @admin_user
 def manu():
+    db = get_db()
+    
+    users = db.execute(
+        'SELECT * FROM user'
+    ).fetchall()
 
-    return render_template('manage/menu.html')
+    print(users[0][0])
+
+    return render_template('manage/menu.html', posts=users)
