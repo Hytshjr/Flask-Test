@@ -25,3 +25,11 @@ def manu():
     print(users[0][0])
 
     return render_template('manage/menu.html', posts=users)
+
+
+@bp.route('/<str:username>/orfile', methods=('GET', 'POST'))
+@admin_user
+def update(username):
+
+    # if posts['author_id'] == session['user_id'] or session['user_rol'] == 'admin':
+    #     pass

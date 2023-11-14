@@ -15,22 +15,26 @@
         </ul>
     </nav>
     
-    {% for post in posts %}
     <div class="users">
-        <header>
-        <div>
-            <h1>{{ post[ 'username' ] }}</h1>
-            
-        </div>
-        {% if session['user_id'] == post['author_id'] or session['user_rol'] == 'admin' %}
-            <a href="{{ url_for('blog.update', id=post['id'] )}}">Perfil</a>
-        {% endif %}
-        </header>
-        <p class="data">{{ post['rol'] }}</p>
+        <table>
+            <tbody >
+                <tr class="header">
+                    <td>Id</td>
+                    <td>Username</td>
+                    <td>Rol</td>
+                    <td></td>
+                </tr>
+
+                {% for post in posts %}
+                    <tr>
+                        <td>{{ post[ 'id' ] }}</td>
+                        <td>{{ post[ 'username' ] }}</td>
+                        <td>{{ post[ 'rol' ] }}</td>
+                        <td><a class="edit" href="#">perfil</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-    {% if not loop.last %}
-        <hr>
-    {% endif %}
-    {% endfor %}
 </div>
 {% endblock %}
