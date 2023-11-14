@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Profile{% endblock %}</h1>
+  <a id="create_post" href="{{ url_for('manage.create', username=posts[0]['username']) }}">New</a>
+{% endblock %}
+
+{% block content %}
+  {% for post in posts %}
+    <article class="post">
+      <header>
+        <div>
+          <h1>{{ post[ 'title' ] }}</h1>
+          <div class="post">
+            {% if post[0][' created '] == None %}
+                by {{ post[ 'username' ] }} on 
+                {{ post[ 'created'].strftime('%Y-%m-%d') }}
+            {% endif %}
+          </div>
+        </div>
+        {% if session['user_id'] == post['author_id'] or session['user_rol'] == 'admin' and  post['post_id']%}
+          <a class="edit" href="{{ url_for('blog.update', id=post['post_id'])}}">Edit</a>
+        {% endif %}
+      </header>
+      <p class="body">{{ post['body'] }}</p>
+    </article>
+  {% endfor %}
+{% endblock %}

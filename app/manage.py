@@ -27,9 +27,58 @@ def manu():
     return render_template('manage/menu.html', posts=users)
 
 
-@bp.route('/<str:username>/orfile', methods=('GET', 'POST'))
+@bp.route('/<string:username>/profile', methods=('GET', 'POST'))
 @admin_user
-def update(username):
+def profile(username):
+    db = get_db()
+    posts = db.execute(
+        'SELECT u.id as user_id, p.id as post_id, title, body, created, author_id, username'
+        ' FROM user u'
+        ' LEFT JOIN post p ON p.author_id = u.id'
+        ' WHERE u.username = ?',
+        (username,)
+    ).fetchall()
 
-    # if posts['author_id'] == session['user_id'] or session['user_rol'] == 'admin':
-    #     pass
+    return render_template('/manage/profile.html', posts=posts)
+
+@bp.route('/<string:username>/create', methods=('GET', 'POST'))
+@admin_user
+def create(username):
+
+    db = get_db()
+    user_id = db.execute(
+        'SELECT id FROM user'
+        ' WHERE username = ?',
+        (username,)
+    ).fetchall()
+
+    print(user_id[0]['id'], 'este es el idddddd')
+
+    if request.method == 'POST':
+        # recieve the data of form
+        title = request.form['title']
+        body = request.form['body']
+
+        error = None
+
+        if not title:
+            error = 'Title is required.'
+
+        if error is None:
+            # recieve the object db connect
+            db = get_db()
+
+            # insert the data of post
+            db.execute(
+                """INSERT INTO post (author_id, body, title)
+                VALUES (?, ?, ?)""", 
+                (user_id[0]['id'], body, title),
+            )
+            db.commit() # save the change or the insert on db
+
+            print(username, 'username muestra')
+
+            return redirect(url_for('blog.index'))
+        
+        flash(error)
+    return render_template('/blog/create.html')
