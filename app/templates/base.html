@@ -1,21 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@1,600&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>{% block title %}{% endblock %} - Flaskr</title>
 </head>
 <body>
-    <nav>
-        <h1><a href="{{ url_for('blog.index') }}">Flaskr</a></h1>
+    <nav class="navegator">
+        <h1 ><a class="credential" href="{{ url_for('blog.index') }}">Flaskr</a></h1>
         <ul>
         {% if g.user %}
-            <li><span>{{ g.user }}</span>
-            <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
+            <li class="credential"><span>{{ g.user }}</span>
+            <li><a class="credential" href="{{ url_for('auth.logout') }}">Log Out</a>
         {% else %}
-            <li><a href="{{ url_for('auth.register') }}">Register</a>
-            <li><a href="{{ url_for('auth.login') }}">Log In</a>
+            <li><a class="credential" href="{{ url_for('auth.register') }}">Register</a>
+            <li><a class="credential" href="{{ url_for('auth.login') }}">Log In</a>
         {% endif %}
         </ul>
     </nav>

@@ -12,7 +12,7 @@
     <input name="title" id="title" value="{{ posts['title'] }}" required>
     <label for="body">Body</label>
     <textarea name="body" id="body">{{ posts['body'] }}</textarea>
-    <input type="submit" value="Save">
+    <input class="save" type="submit" value="Save">
   </form>
   <form action="{{ url_for('blog.delete_post', id=posts['id']) }}" method="post">
     <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
