@@ -6,23 +6,34 @@
 {% endblock %}
 
 {% block content %}
+<div class="container_manage">
+    <nav class="explore">
+        <ul>
+            <li><a href="{{ url_for('manage.menu') }}">Users</a></li>
+            <li><a href="#">Graphics</a></li>
+            <li><a href="#">Acerca de</a></li>
+            <li><a href="#">Contacto</a></li>
+        </ul>
+    </nav>
+
+    <article class="users">
   {% for post in posts %}
-    <article class="post">
-      <header>
-        <div>
-          <h1>{{ post[ 'title' ] }}</h1>
-          <div class="post">
-            {% if post[0][' created '] == None %}
-                by {{ post[ 'username' ] }} on 
-                {{ post[ 'created'].strftime('%Y-%m-%d') }}
-            {% endif %}
-          </div>
+        <div class="users_post">
+            <header>
+                <div >
+                    <h1>{{ post[ 'title' ] }}</h1>
+                        {% if post['created'] != None %}
+                        by {{ post[ 'username' ] }} on
+                        {{ post[ 'created'].strftime('%Y-%m-%d') }}
+                        {% endif %}
+                </div>
+                {% if session['user_id'] == post['author_id'] or session['user_rol'] == 'admin' and post['post_id']%}
+                <a class="edit" href="{{ url_for('blog.update', id=post['post_id'])}}">Edit</a>
+                {% endif %}
+            </header>
+            <p class="user_body">{{ post['body'] }}</p>
         </div>
-        {% if session['user_id'] == post['author_id'] or session['user_rol'] == 'admin' and  post['post_id']%}
-          <a class="edit" href="{{ url_for('blog.update', id=post['post_id'])}}">Edit</a>
-        {% endif %}
-      </header>
-      <p class="body">{{ post['body'] }}</p>
-    </article>
   {% endfor %}
+    </article>
+</div>
 {% endblock %}

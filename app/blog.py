@@ -78,8 +78,6 @@ def update(id):
             db.commit() # save the change or the insert on db
 
             return redirect(url_for('blog.index'))
-    else:
-        return redirect(url_for('blog.index'))
 
     return render_template('/blog/update.html', posts=posts)
 

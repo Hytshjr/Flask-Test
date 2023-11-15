@@ -13,9 +13,14 @@
     <nav class="navegator">
         <h1 ><a class="credential" href="{{ url_for('blog.index') }}">Flaskr</a></h1>
         <ul>
-        {% if g.user %}
+        {% if session['user_rol'] == 'admin' %}
+            <li><a class="credential" href="{{ url_for('manage.menu') }}">{{ g.user }}</a>
+            <li><a class="credential" href="{{ url_for('auth.logout') }}">Log Out</a>
+        
+        {% elif g.user %}
             <li class="credential"><span>{{ g.user }}</span>
             <li><a class="credential" href="{{ url_for('auth.logout') }}">Log Out</a>
+
         {% else %}
             <li><a class="credential" href="{{ url_for('auth.register') }}">Register</a>
             <li><a class="credential" href="{{ url_for('auth.login') }}">Log In</a>

@@ -87,7 +87,6 @@ a {
     flex: auto;
     margin: 1rem 0 0.25rem 0;
     font-size: 40px;
-
 }
 
 .flash {
@@ -110,6 +109,7 @@ a {
 .post>header h1 {
     font-size: 1.5em;
     margin-bottom: 0;
+
 }
 
 .post .about {
@@ -175,20 +175,18 @@ input[type="submit"] {
     background-color: #e74c3c;
 } 
 
+.container_manage {
+    display:flex;
+
+}
+
 .explore {
     background-color: #fff;
-    padding: 10px;
-    height: 100vh; 
-    width: 100px; 
-    box-sizing: border-box;
 }
 
 .explore ul {
     /* border-right: solid 1px #000000; */
     list-style-type: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
     flex-direction: column; 
 }
 
@@ -203,24 +201,21 @@ input[type="submit"] {
     font-weight: bold;
     font-size: 25px;
 }
-
-.container_manage {
-    display: flex;
-}
-
-.explore {
-    flex: 1; /* El contenido izquierdo toma el espacio disponible */
-    padding: 10px;
-}
   
 .users {
-padding: 0px;
+    width: 400px;
+
 }
 
+
+
 .users table {
-    /* border: solid 1px #4b4a4a; */
+    align-self: center;
+    align-items: center;
+    align-content: center;
     width: 100px;
-    padding: 0px 550px 0px 10px;
+    padding: 0px 0px 0px 50px;
+    font-size: 20px;
 }
 
 .users table td {
@@ -228,6 +223,31 @@ padding: 0px;
     padding: 0px 10px 0px 10px;
 }
 
-.users {
-    color: #bb0000;
+.users_post {
+    padding: 0rem 0rem 0rem 1rem;
+    /* display: flex; */
+
+}
+
+.users_post header {
+    display: flex;
+    align-items: flex-end;
+}
+.users:first-of-type {
+    flex: auto;
+}
+
+.users>header:first-of-type {
+    flex: auto;
+}
+
+.users_post>header h1 {
+    flex: auto;
+    margin: 1rem 0 0.25rem 0;
+    font-size: 19px;
+}
+
+
+.users_post>header>div:first-of-type {
+    flex: auto;
 }

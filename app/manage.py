@@ -15,7 +15,7 @@ def admin_user(view):
 
 @bp.route('/menu')
 @admin_user
-def manu():
+def menu():
     db = get_db()
     
     users = db.execute(
