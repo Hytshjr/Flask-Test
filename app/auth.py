@@ -39,9 +39,15 @@ def load_logged_in_user():
         g.user = None
 
     else:
-        g.user = get_db().execute(
-            'SELECT username FROM user WHERE id = ?', (user_id,)
-        ).fetchone()[0] # give the username in str
+        try:
+            g.user = get_db().execute(
+                'SELECT username FROM user WHERE id = ?', (user_id,)
+            ).fetchone()[0] # give the username in str
+
+        except:
+            session['user_id'] = None
+            g.user = None
+
 
 
 @bp.route('/register', methods=('GET', 'POST'))

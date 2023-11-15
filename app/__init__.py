@@ -2,17 +2,22 @@ from flask import Flask
 import os
 
 # create the app
-def create_app():
+def create_app(test_config=None):
     # set the object
-    print('set app')
     app = Flask(__name__, instance_relative_config=True)
 
     # set the configuration
-    print('set configuration')
     app.config.from_mapping(
         SECRET_KEY='dev',
-        DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite')
+        DATABASE=os.path.join(app.instance_path, 'app.sqlite')
     )
+
+    # ensure the instance folder exists
+    try:
+        os.makedirs(app.instance_path)
+
+    except OSError:
+        pass
 
     print('Import db')
     from . import db
@@ -29,5 +34,5 @@ def create_app():
     print('Import manage')
     from . import manage
     app.register_blueprint(manage.bp)
-    
+
     return app

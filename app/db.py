@@ -18,15 +18,13 @@ def init_db_command():
     # receive the connection of sqlite3
     db = get_db()
     
-    # ckeking if the connection is alright
-    if db == 'error':
-        click.echo("Can't conection...")
-    else:
-        # clear the existing data and create new tables
-        with current_app.open_resource('schema.sql') as f:
-            db.executescript(f.read().decode('utf8'))
+    # clear the existing data and create new tables
+    with current_app.open_resource('schema.sql') as f:
+        db.executescript(f.read().decode('utf8'))
 
-        click.echo('Initialized the database.')
+    click.echo('Initialized the database.')
+
+
 
 
 # Add users on db with "flask --app app user-db" in terminal
@@ -52,25 +50,21 @@ def add_user_command():
 def get_db():
     print('get_db')
     # make the connection
-    try:
-        if 'db' not in g:
-            g.db = sqlite3.connect(
-                #DATABASE is the path
-                current_app.config['DATABASE'], 
-                # detect format datatime or others
-                detect_types=sqlite3.PARSE_DECLTYPES 
-            )
-            # set that give tha data as dictionary
-            g.db.row_factory = sqlite3.Row
 
-        click.echo('Connection alright!')
-        return g.db
+    if 'db' not in g:
+        g.db = sqlite3.connect(
+            #DATABASE is the path
+            current_app.config['DATABASE'], 
+            # detect format datatime or others
+            detect_types=sqlite3.PARSE_DECLTYPES 
+        )
+        # set that give tha data as dictionary
+        g.db.row_factory = sqlite3.Row
+
+    click.echo('Connection alright!')
+    return g.db
     
-    except Exception as inst:
-        print('Something is error')
-        click.echo(type(inst))    # print the type error
 
-        return 'error'
     
 
 # Closed the connection 
