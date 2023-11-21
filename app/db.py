@@ -50,7 +50,6 @@ def add_user_command():
 
 # Give the object that saves the connection from sql
 def get_db():
-    print('get_db')
     # make the connection
 
     if 'db' not in g:
@@ -63,13 +62,11 @@ def get_db():
         # set that give tha data as dictionary
         g.db.row_factory = sqlite3.Row
 
-    click.echo('Connection alright!')
     return g.db
     
 
 # Closed the connection 
 def close_db(e=None):
-    print('Close db')
     # such a list, replace the value for None
     db = g.pop('db', None)
 

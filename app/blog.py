@@ -112,6 +112,7 @@ def get_post(id, check_author=True):
 @logged_required
 def delete_post(id):
     posts = get_post(id)
+    print(f'El usuario es: {g.user}')
 
     if posts['author_id'] == session['user_id'] or session['user_rol'] == 'admin':
         db = get_db()

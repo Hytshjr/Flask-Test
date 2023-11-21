@@ -34,7 +34,6 @@ def test_profile_admin(client, auth):
         assert client.get('/manage/test/profile').status_code == 200
 
         response = client.get('/manage/test/profile')
-        print(response.data)
         assert b'test title' in response.data
         assert b'by test on\n                        2018-01-01' in response.data
         assert b'test\nbody' in response.data
@@ -51,8 +50,22 @@ def test_create_admin(client, auth, app):
 
     assert client.get('/manage/test/create').status_code == 200
     assert b'Create Post' in response.data
+
     client.post(
         '/manage/test/create', data={
-            'title_admin': 'test', 'body_admin': ''
+            'title': 'created_admin', 'body': 'holitas' 
             })
+    
+    with app.app_context():
+        db = get_db()
+        count = db.execute('SELECT COUNT(id) FROM post').fetchone()[0]
+        assert count == 2
+
+    
+def test_create_update_validate(client, auth):
+    auth.login(username='other')
+    response = client.post('/manage/test/create', data={'title': '', 'body': ''})
+    assert b'Title is required.' in response.data
+    
+
 

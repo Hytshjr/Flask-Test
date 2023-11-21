@@ -44,18 +44,12 @@ def profile(username):
 @bp.route('/<string:username>/create', methods=('GET', 'POST'))
 @admin_user
 def create(username):
-
-    db = get_db()
-    user_id = db.execute(
-        'SELECT id FROM user'
-        ' WHERE username = ?',
-        (username,)
-    ).fetchall()
-
     if request.method == 'POST':
         # recieve the data of form
         title = request.form['title']
         body = request.form['body']
+
+        print(f'Title: {title}, Body: {body}')
 
         error = None
 
@@ -65,6 +59,12 @@ def create(username):
         if error is None:
             # recieve the object db connect
             db = get_db()
+
+            user_id = db.execute(
+            'SELECT id FROM user'
+            ' WHERE username = ?',
+            (username,)
+            ).fetchall()
 
             # insert the data of post
             db.execute(
