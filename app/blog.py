@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, g, request
 from flask import url_for, flash, session, redirect
-from .db import get_db
+from werkzeug.exceptions import abort
 from .auth import logged_required
+from .db import get_db
 
 bp = Blueprint('blog', __name__)
 
@@ -13,7 +14,6 @@ def index():
             'SELECT p.id, title, body, created, author_id, username, rol'
             ' FROM post p JOIN user u ON p.author_id = u.id'
             ).fetchall()
-    
     
     return render_template('/blog/index.html', posts=posts)
 
@@ -55,19 +55,24 @@ def create():
 def update(id):
     posts = get_post(id)
 
-    if posts['author_id'] == session['user_id'] or session['user_rol'] == 'admin':
+    if request.method == 'POST':
+        # recieve the data of form
+        title = request.form['title']
+        body = request.form['body']
+        error = None
+        
+        if not title:
+            error = 'Title is required.'
 
-        if request.method == 'POST':
-            # recieve the data of form
-            title = request.form['title']
-            body = request.form['body']
+        
+        if error is not None:
+
+            flash(error)
+        
+        else:
 
             # recieve the object db connect
             db = get_db()
-            error = None
-
-            if not title:
-                error = 'Title is required.'
 
             # insert the data of post
             db.execute(
@@ -82,14 +87,23 @@ def update(id):
     return render_template('/blog/update.html', posts=posts)
 
 
-def get_post(id):
+def get_post(id, check_author=True):
     db = get_db()
+    # recieve the post
     posts = db.execute(
         'SELECT p.id, title, body, created, author_id, username'
         ' FROM post p JOIN user u ON p.author_id = u.id'
         ' WHERE p.id = ?',
         (id,)
     ).fetchone()
+
+    # validate if the post exists
+    if posts is None:
+        abort(404, f"Post id {id} doesn't exist.")
+
+    # validate if user is author
+    if check_author and posts['author_id'] != session['user_id'] and session['user_rol'] !='admin':
+        abort(403)
 
     return posts
 

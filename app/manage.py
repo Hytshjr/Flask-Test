@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, g, request, session
 from flask import redirect, flash, url_for
+from werkzeug.exceptions import abort
 from .db import get_db
 import functools
 
@@ -9,7 +10,7 @@ def admin_user(view):
     @functools.wraps(view)
     def wrapped_view(*args, **kwargs):
         if session['user_rol'] != 'admin':
-            return redirect(url_for('blog.index'))
+            return abort(403)
         return view(*args, **kwargs)
     return wrapped_view
 
@@ -21,8 +22,6 @@ def menu():
     users = db.execute(
         'SELECT * FROM user'
     ).fetchall()
-
-    print(users[0][0])
 
     return render_template('manage/menu.html', posts=users)
 
@@ -41,6 +40,7 @@ def profile(username):
 
     return render_template('/manage/profile.html', posts=posts)
 
+
 @bp.route('/<string:username>/create', methods=('GET', 'POST'))
 @admin_user
 def create(username):
@@ -51,8 +51,6 @@ def create(username):
         ' WHERE username = ?',
         (username,)
     ).fetchall()
-
-    print(user_id[0]['id'], 'este es el idddddd')
 
     if request.method == 'POST':
         # recieve the data of form

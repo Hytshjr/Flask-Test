@@ -12,8 +12,7 @@
         <div>
           <h1>{{ post[ 'title' ] }}</h1>
           <div class="post">
-            by {{ post[ 'username' ] }} on 
-            {{ post[ 'created'].strftime('%Y-%m-%d') }}
+            by {{ post[ 'username' ] }} on {{ post[ 'created'].strftime('%Y-%m-%d') }}
           </div>
         </div>
         {% if session['user_id'] == post['author_id'] or session['user_rol'] == 'admin' %}

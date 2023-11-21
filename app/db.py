@@ -12,19 +12,21 @@ def init_app(app):
     app.cli.add_command(add_user_command)
 
 
-# Init the db with "flask --app app init-db" in terminal
-@click.command('init-db')
-def init_db_command():
+# Init the db
+def init_db():
     # receive the connection of sqlite3
     db = get_db()
-    
+
     # clear the existing data and create new tables
     with current_app.open_resource('schema.sql') as f:
         db.executescript(f.read().decode('utf8'))
 
+
+# Call Init db with "flask --app app init-db" in terminal
+@click.command('init-db')
+def init_db_command():
+    init_db()
     click.echo('Initialized the database.')
-
-
 
 
 # Add users on db with "flask --app app user-db" in terminal
@@ -63,8 +65,6 @@ def get_db():
 
     click.echo('Connection alright!')
     return g.db
-    
-
     
 
 # Closed the connection 

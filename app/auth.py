@@ -7,7 +7,7 @@ import functools
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
-# Redirection if is already logged
+#  If is already logged redirect index
 def logged_checking(view):
     @functools.wraps(view)
     def wrapped_view(*args, **kwargs):
@@ -17,7 +17,7 @@ def logged_checking(view):
         return view(*args, **kwargs)
     return wrapped_view
 
-# Redirection if not is logged
+# If not is logged redirect login
 def logged_required(view):
     @functools.wraps(view)
     def wrapped_view(*args, **kwargs):
@@ -28,26 +28,43 @@ def logged_required(view):
     return wrapped_view
 
 
+# Recieve the data of user
+def request_revify():
+    if request.method == 'POST':
+        # receive the values
+        username = request.form['username']
+        password = request.form['password']
+
+        error = 'pass'
+
+        # verify that not is empty
+        if not username:
+            error = 'Username is required.'
+        elif not password:
+            error = 'Password is required.'
+
+
+        return error, username, password
+    
+    else:
+        return None, None, None
+
+
 # Verification if login is already
 @bp.before_app_request
 def load_logged_in_user():
     user_id = session.get('user_id') # give the id in int
 
     # validate the id exists
-    if user_id is None:
+    try:
+        g.user = get_db().execute(
+            'SELECT username FROM user WHERE id = ?', (user_id,)
+        ).fetchone()[0] # give the username in str
+
+    except:
         session['user_id'] = None
+        session['user_rol'] = None
         g.user = None
-
-    else:
-        try:
-            g.user = get_db().execute(
-                'SELECT username FROM user WHERE id = ?', (user_id,)
-            ).fetchone()[0] # give the username in str
-
-        except:
-            session['user_id'] = None
-            g.user = None
-
 
 
 @bp.route('/register', methods=('GET', 'POST'))
@@ -55,10 +72,9 @@ def load_logged_in_user():
 def register():
     error, username, password = request_revify()
 
-    if error is None:
+    if error == 'pass':
         # recieve the object db connect
         db = get_db()
-        error = None
 
         # set the rol default
         rol = 'user'
@@ -74,10 +90,15 @@ def register():
         
         except db.IntegrityError: # error of username duplicate
             error = f"User {username} is already registered."
-            flash(error)
 
         else:
             return redirect(url_for("auth.login"))
+        
+    if error is None:
+        pass
+
+    else:
+        flash(error)
 
     return render_template('auth/register.html')
 
@@ -88,7 +109,7 @@ def login():
     error, username, password = request_revify()
 
     # validate the request
-    if error == None:
+    if error == 'pass':
 
         # recieve the object db connect
         db = get_db()
@@ -96,24 +117,29 @@ def login():
         # search the username if that exists
         credentials = db.execute(
             "SELECT * FROM user WHERE username = ?", (username,)
-            ).fetchall()
+            ).fetchone()
         
         # check if don't find someuser
         if not bool(credentials):
-            error = (f'The user {username} not is registred.')
+            error = ('The username is incorrect.')
 
         # validate the password
-        elif not check_password_hash(credentials[0][3], password):
+        elif not check_password_hash(credentials['password'], password):
             error = ('Your password is incorrect.')
 
         # if the user and password is true move on
-        if error is None:
+        if error == 'pass':
             # session.clear() # clean the data into variable
-            session['user_id'] = credentials[0][0] # give id of db
-            session['user_rol'] = credentials[0][2] # give id of db
+            session['user_id'] = credentials['id'] # give id of db
+            session['user_rol'] = credentials['rol'] # give id of db
+            g.user = credentials['username']
             
             return redirect(url_for('blog.index'))
-        
+    
+    if error is None:
+        pass
+
+    else:
         flash(error)
         
     return render_template('/auth/login.html')
@@ -121,33 +147,14 @@ def login():
 
 @bp.route('/logout', methods=('GET', 'POST'))
 def logout():
-    if session['user_id'] != None:
-        session['user_rol'] = None # delete the rol
-        session['user_id'] = None # delete the id
-        g.user = None # delete the username
+    session.clear()
+    g.user = None # delete the username
 
     return redirect(url_for('blog.index'))
 
 
-def request_revify():
-    if request.method == 'POST':
-        # receive the values
-        username = request.form['username']
-        password = request.form['password']
-
-        error = None
-
-        # verify that not is empty
-        if not username:
-            error = 'Username is required.'
-        elif not password:
-            error = 'Password is required.'
 
 
-        return error, username, password
-    
-    else:
-        return 'wait', None, None
 
 
 
