@@ -1,18 +1,10 @@
-.venv/
+.pytest_cache/
 
+__pycache__/
 .env
 
-*.pyc
-__pycache__/
-
+flask/
 instance/
 
-flask/
-
-.pytest_cache/
 .coverage
 htmlcov/
-
-dist/
-build/
-*.egg-info/
