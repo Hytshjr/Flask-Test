@@ -30,7 +30,7 @@
                         <td>{{ post[ 'id' ] }}</td>
                         <td>{{ post[ 'username' ] }}</td>
                         <td>{{ post[ 'rol' ] }}</td>
-                        <td><a class="edit" href="{{ url_for('manage.profile', username=post['username']) }}" method="post"">perfil</a></td>
+                        <td><a class="edit" href="{{ url_for('manage.profile', username=post[ 'username' ]) }}" method="post">perfil</a></td>
                     </tr>
                 {% endfor %}
             </tbody>

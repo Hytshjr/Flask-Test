@@ -1,7 +1,15 @@
 from werkzeug.security import generate_password_hash
 from flask import current_app, g
-import sqlite3
+from decouple import config
+import pymysql
 import click
+
+
+# Acces to environment variable from .env
+DB_HOST = config('DB_HOST')
+DB_USER = config('DB_USER')
+DB_PASSWORD = config('DB_PASSWORD')
+DB_NAME = config('DB_NAME')
 
 
 # Make the conecion with the code main
@@ -14,12 +22,21 @@ def init_app(app):
 
 # Init the db
 def init_db():
-    # receive the connection of sqlite3
+    # receive the connection of mysql
     db = get_db()
 
-    # clear the existing data and create new tables
-    with current_app.open_resource('schema.sql') as f:
-        db.executescript(f.read().decode('utf8'))
+    try:
+        with db as cursor:
+            with open('app\schema.sql', 'r') as script_file:
+                script = script_file.read()
+                print(script,'this file')
+
+            cursor.execute(script)
+        
+        g.connect.commit()
+
+    except():
+        pass
 
 
 # Call Init db with "flask --app app init-db" in terminal
@@ -50,26 +67,26 @@ def add_user_command():
 
 # Give the object that saves the connection from sql
 def get_db():
+
     # make the connection
-
     if 'db' not in g:
-        g.db = sqlite3.connect(
-            #DATABASE is the path
-            current_app.config['DATABASE'], 
-            # detect format datatime or others
-            detect_types=sqlite3.PARSE_DECLTYPES 
-        )
-        # set that give tha data as dictionary
-        g.db.row_factory = sqlite3.Row
-
+        g.connect = pymysql.connect(
+            host    = DB_HOST, 
+            user    = DB_USER, 
+            passwd  = DB_PASSWORD, 
+            db      = DB_NAME
+            )
+        
+        # pymysql.cursors.DictCursor save the query as dict
+        g.db = g.connect.cursor(pymysql.cursors.DictCursor)
     return g.db
     
 
 # Closed the connection 
 def close_db(e=None):
     # such a list, replace the value for None
-    db = g.pop('db', None)
+    connect = g.pop('connect', None)
 
     # verify that is None if don't is, just close the connection
-    if db is not None:
-        db.close()
+    if connect is not None:
+        connect.close()

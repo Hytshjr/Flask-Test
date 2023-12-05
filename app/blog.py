@@ -10,11 +10,13 @@ bp = Blueprint('blog', __name__)
 def index():
     db = get_db() # recieve the db connection
     # give the data of posts and user
-    posts=db.execute(
-            'SELECT p.id, title, body, created, author_id, username, rol'
-            ' FROM post p JOIN user u ON p.author_id = u.id'
-            ).fetchall()
+    db.execute(
+        'SELECT p.id, title, body, created, author_id, username, rol'
+        ' FROM post p JOIN user u ON p.author_id = u.id'
+        )
     
+    posts = db.fetchall()
+
     return render_template('/blog/index.html', posts=posts)
 
 
@@ -38,10 +40,10 @@ def create():
             # insert the data of post
             db.execute(
                 """INSERT INTO post (author_id, body, title)
-                VALUES (?, ?, ?)""", 
+                VALUES (%s, %s, %s)""", 
                 (session['user_id'], body, title),
             )
-            db.commit() # save the change or the insert on db
+            g.connect.commit() # save the change or the insert on db
 
             return redirect(url_for('blog.index'))
         
@@ -76,11 +78,11 @@ def update(id):
 
             # insert the data of post
             db.execute(
-                'UPDATE post SET title = ?, body = ?'
-                    ' WHERE id = ?',
+                'UPDATE flask.post SET title = %s, body = %s'
+                    ' WHERE id = %s',
                     (title, body, id)
             )
-            db.commit() # save the change or the insert on db
+            g.connect.commit() # save the change or the insert on db
 
             return redirect(url_for('blog.index'))
 
@@ -89,13 +91,17 @@ def update(id):
 
 def get_post(id, check_author=True):
     db = get_db()
+
     # recieve the post
-    posts = db.execute(
+    db.execute(
         'SELECT p.id, title, body, created, author_id, username'
-        ' FROM post p JOIN user u ON p.author_id = u.id'
-        ' WHERE p.id = ?',
+        ' FROM flask.post p JOIN flask.user u ON p.author_id = u.id'
+        ' WHERE p.id = %s',
         (id,)
-    ).fetchone()
+    )
+
+    # save the post into varible
+    posts = db.fetchone()
 
     # validate if the post exists
     if posts is None:
@@ -112,14 +118,13 @@ def get_post(id, check_author=True):
 @logged_required
 def delete_post(id):
     posts = get_post(id)
-    print(f'El usuario es: {g.user}')
 
     if posts['author_id'] == session['user_id'] or session['user_rol'] == 'admin':
         db = get_db()
         db.execute(
-            'DELETE FROM post WHERE id = ?', (id,)
+            'DELETE FROM post WHERE id = %s', (id,)
         )
-        db.commit()
+        g.connect.commit()
 
     return redirect(url_for('blog.index'))
 

@@ -43,7 +43,6 @@ def request_revify():
         elif not password:
             error = 'Password is required.'
 
-
         return error, username, password
     
     else:
@@ -54,12 +53,13 @@ def request_revify():
 @bp.before_app_request
 def load_logged_in_user():
     user_id = session.get('user_id') # give the id in int
+    script = 'SELECT username FROM flask.user WHERE id = %s'
 
     # validate the id exists
     try:
-        g.user = get_db().execute(
-            'SELECT username FROM user WHERE id = ?', (user_id,)
-        ).fetchone()[0] # give the username in str
+        db = get_db()
+        db.execute(script, (user_id,)) # give the username in str
+        g.user = db.fetchone()['username']
 
     except:
         session['user_id'] = None
@@ -79,14 +79,17 @@ def register():
         # set the rol default
         rol = 'user'
 
+        # execute the query and insert user credential
         try:
+            sql = """INSERT INTO user 
+                    (username, rol, password) 
+                    VALUES (%s, %s, %s)"""
+            
             # insert the data and the password as hash
-            db.execute(
-                """INSERT INTO user (username, rol, password)
-                VALUES (?, ?, ?)""", 
-                (username, rol,generate_password_hash(password)),
-            )
-            db.commit() # save the change or the insert on db
+            db.execute(sql, 
+                    (username, rol,generate_password_hash(password))
+                    )
+            g.connect.commit() # save the change or the insert on db
         
         except db.IntegrityError: # error of username duplicate
             error = f"User {username} is already registered."
@@ -114,13 +117,14 @@ def login():
         # recieve the object db connect
         db = get_db()
 
+        sql = """SELECT * FROM flask.user WHERE username = %s"""
+
         # search the username if that exists
-        credentials = db.execute(
-            "SELECT * FROM user WHERE username = ?", (username,)
-            ).fetchone()
-        
+        db.execute(sql, (username,))
+        credentials = db.fetchone() 
+
         # check if don't find someuser
-        if not bool(credentials):
+        if not credentials:
             error = ('The username is incorrect.')
 
         # validate the password
@@ -129,7 +133,7 @@ def login():
 
         # if the user and password is true move on
         if error == 'pass':
-            # session.clear() # clean the data into variable
+            session.clear() # clean the data into variable
             session['user_id'] = credentials['id'] # give id of db
             session['user_rol'] = credentials['rol'] # give id of db
             g.user = credentials['username']
@@ -147,7 +151,8 @@ def login():
 
 @bp.route('/logout', methods=('GET', 'POST'))
 def logout():
-    session.clear()
+    session['user_id'] = None
+    session['user_rol'] = None
     g.user = None # delete the username
 
     return redirect(url_for('blog.index'))

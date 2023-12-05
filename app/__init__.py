@@ -9,7 +9,6 @@ def create_app(test_config=None):
     # set the configuration
     app.config.from_mapping(
         SECRET_KEY='dev',
-        DATABASE=os.path.join(app.instance_path, 'app.sqlite')
     )
 
     if test_config is None:
@@ -41,7 +40,6 @@ def create_app(test_config=None):
     print('Import manage')
     from . import manage
     app.register_blueprint(manage.bp)
-
 
 
     return app

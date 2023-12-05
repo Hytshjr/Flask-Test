@@ -9,12 +9,12 @@
 {% block content %}
   <form method="post">
     <label for="title">Title</label>
-    <input name="title" id="title" value="{{ posts['title'] }}" required>
+    <input name="title" id="title" value="{{ posts[ 'title' ] }}" required>
     <label for="body">Body</label>
-    <textarea name="body" id="body">{{ posts['body'] }}</textarea>
+    <textarea name="body" id="body">{{ posts[ 'body' ] }}</textarea>
     <input class="save" type="submit" value="Save">
   </form>
-  <form action="{{ url_for('blog.delete_post', id=posts['id']) }}" method="post">
+  <form action="{{ url_for('blog.delete_post', id=posts[ 'id' ]) }}" method="post">
     <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
   </form>
 {% endblock %}
