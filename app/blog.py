@@ -122,7 +122,7 @@ def delete_post(id):
     if posts['author_id'] == session['user_id'] or session['user_rol'] == 'admin':
         db = get_db()
         db.execute(
-            'DELETE FROM post WHERE id = %s', (id,)
+            'DELETE FROM flask.post WHERE id = %s', (id,)
         )
         g.connect.commit()
 
