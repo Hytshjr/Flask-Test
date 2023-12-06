@@ -3,7 +3,7 @@ import tempfile
 
 import pytest
 from app import create_app
-from app.db import get_db, init_db
+from app.db import get_db
 
 with open(os.path.join(os.path.dirname(__file__), 'data.sql'), 'rb') as f:
     _data_sql = f.read().decode('utf8')
@@ -17,9 +17,6 @@ def app():
         'DATABASE': db_path,
     })
 
-    with app.app_context():
-        init_db()
-        get_db().executescript(_data_sql)
 
     yield app
 
@@ -41,13 +38,13 @@ class AuthActions(object):
     def __init__(self, client):
         self._client = client
 
-    def login(self, username='test', password='test'):
+    def login(self, username='holi', password='celixs2004'):
         return self._client.post(
             '/auth/login',
             data={'username': username, 'password': password}
         )
     
-    def register(self, username='hola', password='test'):
+    def register(self, username='test', password='test'):
         return self._client.post(
             '/auth/register',
             data={'username': username, 'password': password}

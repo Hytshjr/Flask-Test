@@ -1,9 +1,9 @@
 from flask import Blueprint, render_template, g, request, url_for, flash
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask import redirect, flash, session
-from functools import wraps
 from app.db import get_db
 import functools
+import pymysql
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -91,7 +91,7 @@ def register():
                     )
             g.connect.commit() # save the change or the insert on db
         
-        except db.IntegrityError: # error of username duplicate
+        except pymysql.IntegrityError: # error of username duplicate
             error = f"User {username} is already registered."
 
         else:

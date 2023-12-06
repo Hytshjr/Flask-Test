@@ -16,53 +16,6 @@ DB_NAME = config('DB_NAME')
 def init_app(app):
     print('init app realized')
     app.teardown_appcontext(close_db)
-    app.cli.add_command(init_db_command)
-    app.cli.add_command(add_user_command)
-
-
-# Init the db
-def init_db():
-    # receive the connection of mysql
-    db = get_db()
-
-    try:
-        with db as cursor:
-            with open('app\schema.sql', 'r') as script_file:
-                script = script_file.read()
-                print(script,'this file')
-
-            cursor.execute(script)
-        
-        g.connect.commit()
-
-    except():
-        pass
-
-
-# Call Init db with "flask --app app init-db" in terminal
-@click.command('init-db')
-def init_db_command():
-    init_db()
-    click.echo('Initialized the database.')
-
-
-# Add users on db with "flask --app app user-db" in terminal
-@click.command('user-db')
-def add_user_command():
-    db = get_db()
-
-    user = input('Introduce un usuario: ')
-    rol = input('Introduce un rol: ')
-    password = input('Introduce una contraseña: ')
-
-    # insert the data and the password as hash
-    db.execute(
-        """INSERT INTO user (username, rol, password)
-        VALUES (?, ?, ?)""", 
-        (user, rol,generate_password_hash(password)),
-    )
-    db.commit() # save the change or the insert on db
-    click.echo('User add on the database.')
 
 
 # Give the object that saves the connection from sql
@@ -90,3 +43,5 @@ def close_db(e=None):
     # verify that is None if don't is, just close the connection
     if connect is not None:
         connect.close()
+    
+    return connect
