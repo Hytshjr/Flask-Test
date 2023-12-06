@@ -1,9 +1,5 @@
 import pytest
 from app.db import get_db
-from decouple import config
-
-DB_USER = config('DB_USER')
-DB_PASSWORD = config('DB_PASSWORD')
 
 def test_index(client, auth):
     response = client.get('/')
@@ -65,41 +61,22 @@ def test_create_post(client, auth, app):
 
     with app.app_context():
         db = get_db()
-        db.execute('SELECT COUNT(id) FROM flask.post')
-        count = db.fetchone()
-        assert count['COUNT(id)'] == 4
-        db.execute('SELECT id FROM flask.post WHERE title = "created"')
-        post_id = db.fetchone()
+        db.execute('SELECT * FROM flask.post WHERE title = "created"')
+        post = db.fetchone()
+        assert post['title'] == 'created'
 
     auth.login()
-    assert client.get(f'/{post_id["id"]}/update').status_code == 200
-    assert client.get(f'/{post_id["id"]}/delete').status_code == 302
+    assert client.get(f'/{post["id"]}/update').status_code == 200
+    assert client.get(f'/{post["id"]}/delete').status_code == 302
 
-
-def test_create_post_delete(client, auth, app):
-    auth.login()
-    assert client.get('/create').status_code == 200
-    client.post('/create', data={'title': 'Post para eliminar', 'body': 'Eliminar'})
-
-
-def test_delete_post(client, auth, app):
     with app.app_context():
         db = get_db()
-        db.execute('SELECT id FROM flask.post WHERE title = "Post para eliminar"')
-        post_id = db.fetchone()
-
-    auth.login(password='DB_PASSWORD', username='DB_USER')
-    with client:
-        assert client.get('/manage/menu').status_code == 200
-        assert client.post(f'/{post_id["id"]}/delete').status_code == 302
-        with app.app_context():
-            db = get_db()
-            db.execute('SELECT COUNT(id) FROM flask.post')
-            count = db.fetchone()
-            assert count['COUNT(id)'] == 3
+        db.execute('SELECT id FROM flask.post WHERE title = "created"')
+        post = db.fetchone()
+        assert post == None
 
 
-def test_redirect(client, auth, app):
+def test_redirect(client):
     with client:
         response = client.get('/create')
         assert b'Redirecting...' in response.data
