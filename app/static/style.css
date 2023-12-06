@@ -74,6 +74,10 @@ a {
     text-decoration: none;
 }
 
+.delete{
+    color: #ff1900;
+}
+
 .content {
     padding: 0 1rem 1rem;
 }
@@ -116,6 +120,8 @@ a {
     color: slategray;
     font-style: italic;
 }
+
+
 
 .post .body {
     white-space: pre-line;

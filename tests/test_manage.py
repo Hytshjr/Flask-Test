@@ -1,6 +1,9 @@
 import pytest
 from app.db import get_db
+from decouple import config
 
+DB_USER = config('DB_USER')
+DB_PASSWORD = config('DB_PASSWORD')
 
 @pytest.mark.parametrize('path', (
     '/manage/menu',
@@ -17,10 +20,10 @@ def test_manage_user(client, auth, path):
     b'Id',
     b'Rol',
     b'test',
-    b'hytsh'
+    b'DB_USER'
 ))
 def test_menu_admin(client, auth, label):
-    auth.login(username='hytsh', password='hytshtest2')
+    auth.login(username='DB_USER', password='DB_PASSWORD')
     assert client.get('/manage/menu').status_code == 200
 
     response = client.get('/manage/menu')
@@ -28,7 +31,7 @@ def test_menu_admin(client, auth, label):
 
 
 def test_profile_admin(client, auth):
-    auth.login(username='hytsh', password='hytshtest2')
+    auth.login(username='DB_USER', password='DB_PASSWORD')
 
     with client:
         assert client.get('/manage/holi1/profile').status_code == 200
@@ -43,7 +46,7 @@ def test_profile_admin(client, auth):
 
 
 def test_create_admin(client, auth, app):
-    auth.login(username='hytsh', password='hytshtest2')
+    auth.login(username='DB_USER', password='DB_PASSWORD')
 
     response = client.get('/manage/holi1/create')
 
@@ -67,9 +70,25 @@ def test_create_admin(client, auth, app):
 
     
 def test_create_update_validate(client, auth):
-    auth.login(username='hytsh', password='hytshtest2')
+    auth.login(username='DB_USER', password='DB_PASSWORD')
     response = client.post('/manage/test/create', data={'title': '', 'body': ''})
     assert b'Title is required.' in response.data
-    
 
+
+@pytest.mark.parametrize('users', (
+    'test',
+    'a',
+))
+def test_detelete(client, auth, users, app):
+    auth.login(username='DB_USER', password='DB_PASSWORD')
+
+    assert client.post(f'manage/{users}/delete').status_code == 302
+
+    client.post(f'manage/{users}/delete')
+
+    with app.app_context():
+        db = get_db()
+        db.execute('SELECT username FROM flask.user WHERE username = %s', (users,))
+        query = db.fetchone()
+        assert query is None
 

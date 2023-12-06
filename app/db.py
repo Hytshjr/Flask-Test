@@ -1,8 +1,6 @@
-from werkzeug.security import generate_password_hash
-from flask import current_app, g
+from flask import g
 from decouple import config
 import pymysql
-import click
 
 
 # Acces to environment variable from .env

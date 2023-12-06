@@ -3,12 +3,14 @@ from flask import g, session
 from app.db import get_db
 
 
-def test_register(client, app):
+def test_register(client, app, auth):
     assert client.get('/auth/register').status_code == 200
     response = client.post(
         '/auth/register', data={'username': 'a', 'password': 'a'}
     )
     assert response.headers["Location"] == "/auth/login"
+    
+    auth.register()
 
     with app.app_context():
         assert get_db().execute(
@@ -57,8 +59,6 @@ def test_logged_checking(client, auth):
     with client:
         client.get('/auth/logi')
         assert response.headers["Location"] == "/"
-
-
 
 
 def test_logout(client, auth):

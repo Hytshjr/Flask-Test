@@ -1,5 +1,9 @@
 import pytest
 from app.db import get_db
+from decouple import config
+
+DB_USER = config('DB_USER')
+DB_PASSWORD = config('DB_PASSWORD')
 
 def test_index(client, auth):
     response = client.get('/')
@@ -84,7 +88,7 @@ def test_delete_post(client, auth, app):
         db.execute('SELECT id FROM flask.post WHERE title = "Post para eliminar"')
         post_id = db.fetchone()
 
-    auth.login(password='hytshtest2', username='hytsh')
+    auth.login(password='DB_PASSWORD', username='DB_USER')
     with client:
         assert client.get('/manage/menu').status_code == 200
         assert client.post(f'/{post_id["id"]}/delete').status_code == 302

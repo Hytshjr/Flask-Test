@@ -31,6 +31,7 @@
                         <td>{{ post[ 'username' ] }}</td>
                         <td>{{ post[ 'rol' ] }}</td>
                         <td><a class="edit" href="{{ url_for('manage.profile', username=post[ 'username' ]) }}" method="post">perfil</a></td>
+                        <td><a class="delete" href="{{ url_for('manage.delete', username=post[ 'username' ]) }}" method="post">delete</a></td>
                     </tr>
                 {% endfor %}
             </tbody>

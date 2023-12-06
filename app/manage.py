@@ -41,6 +41,29 @@ def profile(username):
 
     return render_template('/manage/profile.html', posts=posts)
 
+@bp.route('/<string:username>/delete', methods=('GET', 'POST'))
+@admin_user
+def delete(username):
+    script = 'SELECT username FROM flask.user WHERE username = %s'
+
+    db = get_db()
+    db.execute(script, (username))
+
+    # save the post into varible
+    user = db.fetchone()
+
+    # validate if the post exists
+    if user is None:
+        abort(404, f"User {username} doesn't exist.")
+    
+    else:
+        
+        script = "DELETE FROM flask.user WHERE username = %s" 
+        db.execute(script, (username,))
+        g.connect.commit()
+
+        return redirect(url_for('manage.menu'))
+
 
 @bp.route('/<string:username>/create', methods=('GET', 'POST'))
 @admin_user
