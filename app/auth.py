@@ -53,7 +53,7 @@ def request_revify():
 @bp.before_app_request
 def load_logged_in_user():
     user_id = session.get('user_id') # give the id in int
-    script = 'SELECT username FROM flask.user WHERE id = %s'
+    script = 'SELECT username FROM user WHERE id = %s'
 
     # validate the id exists
     try:
@@ -117,7 +117,7 @@ def login():
         # recieve the object db connect
         db = get_db()
 
-        sql = """SELECT * FROM flask.user WHERE username = %s"""
+        sql = """SELECT * FROM user WHERE username = %s"""
 
         # search the username if that exists
         db.execute(sql, (username,))

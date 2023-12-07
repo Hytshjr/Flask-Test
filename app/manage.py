@@ -19,7 +19,7 @@ def admin_user(view):
 def menu():
     # recieve the conection
     db = get_db()
-    db.execute('SELECT * FROM flask.user') # recieve the query
+    db.execute('SELECT * FROM user') # recieve the query
     users = db.fetchall()
 
     return render_template('manage/menu.html', posts=users)
@@ -31,8 +31,8 @@ def profile(username):
     db = get_db()
     db.execute(
         'SELECT u.id as user_id, p.id as post_id, title, body, created, author_id, username'
-        ' FROM flask.user u'
-        ' LEFT JOIN flask.post p ON p.author_id = u.id'
+        ' FROM user u'
+        ' LEFT JOIN post p ON p.author_id = u.id'
         ' WHERE u.username = %s',
         (username,)
     )
@@ -44,7 +44,7 @@ def profile(username):
 @bp.route('/<string:username>/delete', methods=('GET', 'POST'))
 @admin_user
 def delete(username):
-    script = 'SELECT username FROM flask.user WHERE username = %s'
+    script = 'SELECT username FROM user WHERE username = %s'
 
     db = get_db()
     db.execute(script, (username))
@@ -58,7 +58,7 @@ def delete(username):
     
     else:
         
-        script = "DELETE FROM flask.user WHERE username = %s" 
+        script = "DELETE FROM user WHERE username = %s" 
         db.execute(script, (username,))
         g.connect.commit()
 
@@ -85,7 +85,7 @@ def create(username):
             db = get_db()
 
             db.execute(
-            'SELECT id FROM flask.user'
+            'SELECT id FROM user'
             ' WHERE username = %s',
             (username,)
             )

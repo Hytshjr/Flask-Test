@@ -2,16 +2,13 @@ import pytest
 from app.db import get_db
 from decouple import config
 
-DB_PASSWORD = config('DB_PASSWORD')
-
-
 
 @pytest.mark.parametrize('path', (
     '/manage/menu',
     '/manage/test/profile',
     '/manage/test/create'
 ))
-def test_manage_user(client, auth, path):
+def test_manage_user(client, auth, path, app):
     auth.login()
     assert client.get(path).status_code == 403
 
@@ -21,46 +18,45 @@ def test_manage_user(client, auth, path):
     b'Id',
     b'Rol',
     b'test',
-    b'hytsh'
+    b'test_admin'
 ))
 def test_menu_admin(client, auth, label):
-    auth.login(username='hytsh', password='hytshtest2')
+    auth.login(username='test_admin', password='test')
     assert client.get('/manage/menu').status_code == 200
 
     response = client.get('/manage/menu')
     assert label in response.data
 
 
-def test_profile_admin(client, auth):
-    auth.login(username='hytsh', password='hytshtest2')
+def test_create_admin(client, auth):
+    auth.login(username='test_admin', password='test')
+    response = client.get('/manage/test/create')
 
-    with client:
-        response = client.get('/manage/holi1/profile')
-
-        assert client.get('/manage/holi1/profile').status_code == 200
-        assert b'Post Admin' in response.data
-        assert b'by holi1 on\n                        2023-12-05' in response.data
-        assert b'href="/4/update"' in response.data
-        assert b'href="/manage/holi1/create"' in response.data
-        assert b'New' in response.data
-        assert b'edit' in response.data
-
-
-def test_create_admin(client, auth, app):
-    auth.login(username='hytsh', password='hytshtest2')
-    response = client.get('/manage/holi1/create')
-
-    assert client.get('/manage/holi1/create').status_code == 200
+    assert client.get('/manage/test/create').status_code == 200
     assert b'Create Post' in response.data
 
     client.post(
-        '/manage/holi1/create', data={
+        '/manage/test/create', data={
             'title': 'created_admin', 'body': 'holitas' 
             })
     
+
+def test_profile_admin(client, auth, app):
+    auth.login(username='test_admin', password='test')
+
+    with client:
+        response = client.get('/manage/test/profile')
+
+        assert client.get('/manage/test/profile').status_code == 200
+        assert b'created_admin' in response.data
+        assert b'by test on\n' in response.data
+        assert b'href="/manage/test/create"' in response.data
+        assert b'New' in response.data
+        assert b'edit' in response.data
+
     with app.app_context():
         db = get_db()
-        db.execute('SELECT * FROM flask.post WHERE title = "created_admin"')
+        db.execute('SELECT * FROM post WHERE title = "created_admin"')
         post = db.fetchone()
 
         assert post['title'] == 'created_admin'
@@ -68,7 +64,7 @@ def test_create_admin(client, auth, app):
 
     
 def test_create_update_validate(client, auth):
-    auth.login(username='hytsh', password='hytshtest2')
+    auth.login(username='test_admin', password='test')
     response = client.post('/manage/test/create', data={'title': '', 'body': ''})
     assert b'Title is required.' in response.data
 
@@ -78,7 +74,7 @@ def test_create_update_validate(client, auth):
     'a',
 ))
 def test_detelete(client, auth, users, app):
-    auth.login(username='hytsh', password='hytshtest2')
+    auth.login(username='test_admin', password='test')
 
     assert client.post(f'manage/{users}/delete').status_code == 302
 
@@ -86,7 +82,22 @@ def test_detelete(client, auth, users, app):
 
     with app.app_context():
         db = get_db()
-        db.execute('SELECT username FROM flask.user WHERE username = %s', (users,))
+        db.execute('SELECT username FROM user WHERE username = %s', (users,))
         query = db.fetchone()
         assert query is None
+
+
+def test_delete_admin_user(client, auth, app):
+    auth.login(username='test_admin', password='test')
+    assert client.get('/create').status_code == 200
+    client.post('/create', data={'title': 'created_admim', 'body': 'body_test_for_test_admin'})
+
+    with app.app_context():
+        db = get_db()
+        db.execute('SELECT * FROM post WHERE title = "created_admim"')
+        post = db.fetchone()
+        assert post['title'] == 'created_admim'
+
+    assert client.post(f'/{post["id"]}/delete').status_code == 302
+    client.post(f'/{post["id"]}/delete')
 
