@@ -1,7 +1,6 @@
 import pytest
 from app.db import get_db
 from flask import g, session
-from werkzeug.security import generate_password_hash
 
 
 

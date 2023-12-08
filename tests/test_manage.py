@@ -1,6 +1,6 @@
 import pytest
+from flask import g
 from app.db import get_db
-from decouple import config
 
 
 @pytest.mark.parametrize('path', (
@@ -100,4 +100,24 @@ def test_delete_admin_user(client, auth, app):
 
     assert client.post(f'/{post["id"]}/delete').status_code == 302
     client.post(f'/{post["id"]}/delete')
+
+
+def test_delete_admin(app):
+    with app.app_context():
+        db = get_db()
+        db.execute('DELETE FROM user WHERE username = "test_admin"')
+        g.connect.commit()
+        params = g.connect.db
+
+    
+    with app.app_context():
+        db = get_db()
+        db.execute('SELECT * FROM user WHERE username = "test_admin"')
+        post = db.fetchone()
+        assert post == None
+
+    with app.app_context():
+        params = params.decode('utf-8')
+        db = get_db()
+        db.execute(f'DROP DATABASE IF EXISTS {params};')
 

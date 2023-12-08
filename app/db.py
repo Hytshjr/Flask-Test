@@ -37,9 +37,14 @@ def create_db():
 
         # closed connection
         connection.close()
+
+        return None
     
     except:
-        print('The DB is already create.')
+        connect = 'The DB is already create.'
+        print(connect)
+
+        return connect
 
 
 # Create a tables
@@ -63,15 +68,9 @@ def create_table(app):
         title       = db.Column(db.String(120), nullable=False)
         body        = db.Column(db.Text, nullable=False)
 
-    try:
-        with app.app_context():  # init context
-            # create the migration initial
-            db.create_all()
-
-    except Exception as e:
-        print(f'Error creating tables: {e}')
-
-    
+    with app.app_context():  # init context
+        # create the migration initial
+        db.create_all()
 
 
 # Give the object that saves the connection from sql
