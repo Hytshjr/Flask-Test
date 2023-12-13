@@ -1,5 +1,4 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func
 from decouple import config
 from flask import g
 import pymysql
