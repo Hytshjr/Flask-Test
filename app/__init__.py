@@ -1,15 +1,19 @@
 from flask import Flask
+from decouple import config
 import os
+
+APP_PASSWORD = config('APP_PASSWORD')
+
 
 # create the app
 def create_app(test_config=None):
     # set the object
     app = Flask(__name__, instance_relative_config=True)
+    app.run(host="0.0.0.0", port=80)
 
     # set the configuration
     app.config.from_mapping(
-        SECRET_KEY='dev',
-        DATABASE=os.path.join(app.instance_path, 'app.sqlite')
+        SECRET_KEY=APP_PASSWORD,
     )
 
     if test_config is None:
@@ -41,7 +45,6 @@ def create_app(test_config=None):
     print('Import manage')
     from . import manage
     app.register_blueprint(manage.bp)
-
 
 
     return app

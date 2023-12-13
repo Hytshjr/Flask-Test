@@ -3,10 +3,6 @@ import tempfile
 
 import pytest
 from app import create_app
-from app.db import get_db, init_db
-
-with open(os.path.join(os.path.dirname(__file__), 'data.sql'), 'rb') as f:
-    _data_sql = f.read().decode('utf8')
 
 @pytest.fixture
 def app():
@@ -17,9 +13,6 @@ def app():
         'DATABASE': db_path,
     })
 
-    with app.app_context():
-        init_db()
-        get_db().executescript(_data_sql)
 
     yield app
 
@@ -47,7 +40,7 @@ class AuthActions(object):
             data={'username': username, 'password': password}
         )
     
-    def register(self, username='hola', password='test'):
+    def register(self, username='test', password='test'):
         return self._client.post(
             '/auth/register',
             data={'username': username, 'password': password}

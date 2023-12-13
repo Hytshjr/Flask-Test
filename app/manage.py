@@ -1,5 +1,5 @@
-from flask import Blueprint, render_template, g, request, session
-from flask import redirect, flash, url_for
+from flask import Blueprint, render_template, request, session
+from flask import redirect, flash, g, url_for
 from werkzeug.exceptions import abort
 from .db import get_db
 import functools
@@ -17,11 +17,10 @@ def admin_user(view):
 @bp.route('/menu')
 @admin_user
 def menu():
+    # recieve the conection
     db = get_db()
-    
-    users = db.execute(
-        'SELECT * FROM user'
-    ).fetchall()
+    db.execute('SELECT * FROM user') # recieve the query
+    users = db.fetchall()
 
     return render_template('manage/menu.html', posts=users)
 
@@ -30,15 +29,40 @@ def menu():
 @admin_user
 def profile(username):
     db = get_db()
-    posts = db.execute(
+    db.execute(
         'SELECT u.id as user_id, p.id as post_id, title, body, created, author_id, username'
         ' FROM user u'
         ' LEFT JOIN post p ON p.author_id = u.id'
-        ' WHERE u.username = ?',
+        ' WHERE u.username = %s',
         (username,)
-    ).fetchall()
+    )
+    posts = db.fetchall()
+    print(posts)
 
     return render_template('/manage/profile.html', posts=posts)
+
+@bp.route('/<string:username>/delete', methods=('GET', 'POST'))
+@admin_user
+def delete(username):
+    script = 'SELECT username FROM user WHERE username = %s'
+
+    db = get_db()
+    db.execute(script, (username))
+
+    # save the post into varible
+    user = db.fetchone()
+
+    # validate if the post exists
+    if user is None:
+        abort(404, f"User {username} doesn't exist.")
+    
+    else:
+        
+        script = "DELETE FROM user WHERE username = %s" 
+        db.execute(script, (username,))
+        g.connect.commit()
+
+        return redirect(url_for('manage.menu'))
 
 
 @bp.route('/<string:username>/create', methods=('GET', 'POST'))
@@ -60,19 +84,20 @@ def create(username):
             # recieve the object db connect
             db = get_db()
 
-            user_id = db.execute(
+            db.execute(
             'SELECT id FROM user'
-            ' WHERE username = ?',
+            ' WHERE username = %s',
             (username,)
-            ).fetchall()
+            )
+            user_id = db.fetchone()
 
             # insert the data of post
             db.execute(
                 """INSERT INTO post (author_id, body, title)
-                VALUES (?, ?, ?)""", 
-                (user_id[0]['id'], body, title),
+                VALUES (%s, %s, %s)""", 
+                (user_id['id'], body, title),
             )
-            db.commit() # save the change or the insert on db
+            g.connect.commit() # save the change or the insert on db
 
             print(username, 'username muestra')
 

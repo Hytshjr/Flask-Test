@@ -1,75 +1,101 @@
-from werkzeug.security import generate_password_hash
-from flask import current_app, g
-import sqlite3
-import click
+from flask_sqlalchemy import SQLAlchemy
+from decouple import config
+from flask import g
+import pymysql
+
+
+# Acces to environment variable from .env
+DB_HOST = config('DB_HOST')
+DB_USER = config('DB_USER')
+DB_PASSWORD = config('DB_PASSWORD')
+DB_NAME = config('DB_NAME')
 
 
 # Make the conecion with the code main
 def init_app(app):
-    print('init app realized')
+    create_db()
+    create_table(app)
     app.teardown_appcontext(close_db)
-    app.cli.add_command(init_db_command)
-    app.cli.add_command(add_user_command)
+
+    print('Init app realized')
 
 
-# Init the db
-def init_db():
-    # receive the connection of sqlite3
-    db = get_db()
+# Create a DATABASE
+def create_db():
+    # connect 
+    connection = pymysql.connect(host=DB_HOST,
+                                user=DB_USER,
+                                password=DB_PASSWORD)  
 
-    # clear the existing data and create new tables
-    with current_app.open_resource('schema.sql') as f:
-        db.executescript(f.read().decode('utf8'))
+    # recieve a cursor
+    cursor = connection.cursor()
+
+    try:
+        # create the BD
+        cursor.execute(f"CREATE DATABASE {DB_NAME}")
+
+        # closed connection
+        connection.close()
+
+        return None
+    
+    except:
+        connect = 'The DB is already create.'
+        print(connect)
+
+        return connect
 
 
-# Call Init db with "flask --app app init-db" in terminal
-@click.command('init-db')
-def init_db_command():
-    init_db()
-    click.echo('Initialized the database.')
+# Create a tables
+def create_table(app):
+    app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@localhost/{DB_NAME}"
 
+    db = SQLAlchemy(app) # init SQLAlchemy
 
-# Add users on db with "flask --app app user-db" in terminal
-@click.command('user-db')
-def add_user_command():
-    db = get_db()
+    # set the table user
+    class User(db.Model):
+        id          = db.Column(db.Integer, primary_key=True, autoincrement=True)
+        username    = db.Column(db.String(80), nullable=False, unique=True)
+        rol         = db.Column(db.String(80), nullable=False)
+        password    = db.Column(db.String(255), nullable=False)
 
-    user = input('Introduce un usuario: ')
-    rol = input('Introduce un rol: ')
-    password = input('Introduce una contraseña: ')
+    # set the table post
+    class Post(db.Model):
+        id          = db.Column(db.Integer, primary_key=True, autoincrement=True)
+        author_id   = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+        created     = db.Column(db.TIMESTAMP, nullable=False, server_default=db.func.current_timestamp())
+        title       = db.Column(db.String(120), nullable=False)
+        body        = db.Column(db.Text, nullable=False)
 
-    # insert the data and the password as hash
-    db.execute(
-        """INSERT INTO user (username, rol, password)
-        VALUES (?, ?, ?)""", 
-        (user, rol,generate_password_hash(password)),
-    )
-    db.commit() # save the change or the insert on db
-    click.echo('User add on the database.')
+    with app.app_context():  # init context
+        # create the migration initial
+        db.create_all()
 
 
 # Give the object that saves the connection from sql
 def get_db():
+
     # make the connection
-
     if 'db' not in g:
-        g.db = sqlite3.connect(
-            #DATABASE is the path
-            current_app.config['DATABASE'], 
-            # detect format datatime or others
-            detect_types=sqlite3.PARSE_DECLTYPES 
-        )
-        # set that give tha data as dictionary
-        g.db.row_factory = sqlite3.Row
-
+        g.connect = pymysql.connect(
+            host    = DB_HOST, 
+            user    = DB_USER, 
+            passwd  = DB_PASSWORD, 
+            db      = DB_NAME
+            )
+        
+        # pymysql.cursors.DictCursor save the query as dict
+        g.db = g.connect.cursor(pymysql.cursors.DictCursor)
     return g.db
     
 
 # Closed the connection 
 def close_db(e=None):
     # such a list, replace the value for None
-    db = g.pop('db', None)
+    connect = g.pop('connect', None)
 
     # verify that is None if don't is, just close the connection
-    if db is not None:
-        db.close()
+    if connect is not None:
+        connect.close()
+    
+    return connect
