@@ -19,7 +19,7 @@ def admin_user(view):
 def menu():
     # recieve the conection
     db = get_db()
-    db.execute('SELECT * FROM user') # recieve the query
+    db.execute('SELECT id, username, rol FROM user') # recieve the query
     users = db.fetchall()
 
     return render_template('manage/menu.html', posts=users)

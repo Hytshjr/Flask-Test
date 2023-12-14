@@ -117,7 +117,7 @@ def login():
         # recieve the object db connect
         db = get_db()
 
-        sql = """SELECT * FROM user WHERE username = %s"""
+        sql = """SELECT id, username, rol, password FROM flask.user WHERE username = %s"""
 
         # search the username if that exists
         db.execute(sql, (username,))

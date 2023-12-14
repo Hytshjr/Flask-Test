@@ -9,7 +9,6 @@ APP_PASSWORD = config('APP_PASSWORD')
 def create_app(test_config=None):
     # set the object
     app = Flask(__name__, instance_relative_config=True)
-    app.run(host="0.0.0.0", port=80)
 
     # set the configuration
     app.config.from_mapping(
